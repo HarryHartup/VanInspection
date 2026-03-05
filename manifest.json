@@ -2,7 +2,7 @@
 "name": "Vehicle Inspection",
 "short_name": "Inspection",
 "display": "standalone",
-"start_url": ".",
+"start_url": "./",
 "background_color": "#000000",
 "theme_color": "#ff7a00"
 }
