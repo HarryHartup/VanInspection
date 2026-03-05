@@ -1,6 +1,6 @@
 self.addEventListener("install", e => {
 
-e.waitUntil(
+e.waitUntil( 
 
 caches.open("inspection-cache").then(cache => {
 
