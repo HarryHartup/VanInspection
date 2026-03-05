@@ -1,91 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Vehicle Inspection</title>
 
-<link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
-
 <meta name="theme-color" content="#ff7a00">
+
+<link rel="stylesheet" href="style.css">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 </head>
 
-<body>
 
-<div class="container">
+<body>
 
 <h1>Vehicle Inspection</h1>
 
-<div class="inspection-type">
+<div class="vehicle-box">
 
-<h3>Inspection Type</h3>
-
-<div class="toggle">
-
-<button id="preBtn" class="toggle-btn active" onclick="setInspection('Pre')">PRE</button>
-
-<button id="postBtn" class="toggle-btn" onclick="setInspection('Post')">POST</button>
-
-</div>
-
-<input type="hidden" id="inspectionType" value="Pre">
-
-</div>
-
-<label>Driver Name</label>
-<input id="driver" type="text">
+<label>Inspection Type</label>
+<select id="inspectionType">
+<option value="PRE">Pre Inspection</option>
+<option value="POST">Post Inspection</option>
+</select>
 
 <label>Vehicle Registration</label>
 <input id="reg" type="text">
 
-<a class="gov-link" target="_blank"
-href="https://vehicleenquiry.service.gov.uk/">
-Check MOT & Tax
+<a href="https://vehicleenquiry.service.gov.uk/" target="_blank">
+Check vehicle details
 </a>
 
 <label>Mileage</label>
 <input id="mileage" type="number">
 
-<h3>Safe To Drive</h3>
-
-<div class="toggle">
-
-<button id="safeBtn" class="toggle-btn active" onclick="setSafe(true)">YES</button>
-
-<button id="unsafeBtn" class="toggle-btn" onclick="setSafe(false)">NO</button>
+<label>Safe To Drive</label>
+<select id="safeToDrive">
+<option value="YES">YES</option>
+<option value="NO">NO</option>
+</select>
 
 </div>
 
-<input type="hidden" id="safeToDrive" value="Yes">
-
-<div id="progress">0% Complete</div>
-
 <div id="checklist"></div>
+
+<h3>Photos</h3>
+<input id="photoUpload" type="file" accept="image/*" multiple>
 
 <h3>Notes</h3>
 <textarea id="notes"></textarea>
 
-<h3>Photos</h3>
-<input type="file" id="photoUpload" multiple accept="image/*">
-
-<button class="export" onclick="exportPDF()">Export PDF</button>
-
-</div>
+<button onclick="exportPDF()">Export PDF</button>
 
 <script src="app.js"></script>
 
-<script>
-if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('sw.js')
-}
-</script>
-
 </body>
+
 </html>
