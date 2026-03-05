@@ -11,7 +11,8 @@ const checklist = {
 "Lights clean and secure",
 "Windscreen clear of cracks",
 "Windscreen clean inside",
-"Mirrors clean and secure"
+"Mirrors clean and secure",
+"Mirrors adjusted correctly"
 ],
 
 "Tyres & Wheels":[
@@ -44,9 +45,7 @@ const checklist = {
 "Horn works",
 "Wipers working",
 "Washers working",
-"Heater/demister working",
-"No warning lights showing",
-"Fuel card present in van"
+"Heater/demister working"
 ],
 
 "Safety Equipment":[
@@ -60,47 +59,17 @@ const checklist = {
 "Bulkhead secure",
 "No loose items",
 "Vehicle not overloaded"
+],
+
+"Operational":[
+"Fuel card present in van"
 ]
 
 }
 
-let results = {}
-
-let totalChecks = Object.values(checklist).flat().length
 
 
-
-function setInspection(type){
-
-document.getElementById("inspectionType").value = type
-
-preBtn.classList.remove("active")
-postBtn.classList.remove("active")
-
-if(type==="Pre"){
-preBtn.classList.add("active")
-}else{
-postBtn.classList.add("active")
-}
-
-}
-
-
-
-function setSafe(value){
-
-document.getElementById("safeToDrive").value = value ? "Yes":"No"
-
-safeBtn.classList.remove("active")
-unsafeBtn.classList.remove("active")
-
-if(value){
-safeBtn.classList.add("active")
-}else{
-unsafeBtn.classList.add("active")
-}
-
-}
+const results = {}
 
 
 
@@ -110,40 +79,44 @@ const container = document.getElementById("checklist")
 
 Object.keys(checklist).forEach(section=>{
 
-let sec = document.createElement("div")
-sec.className="section"
+let sectionDiv=document.createElement("div")
+sectionDiv.className="section"
 
-sec.innerHTML=`<h3>${section}</h3>`
+let title=document.createElement("h3")
+title.innerText=section
+
+sectionDiv.appendChild(title)
 
 checklist[section].forEach(item=>{
 
 let row=document.createElement("div")
 row.className="item"
 
-row.innerHTML=`
+let label=document.createElement("span")
+label.innerText=item
 
-<span>${item}</span>
-
-<div class="buttons">
-
-<button class="pass">PASS</button>
-
-<button class="fail">FAIL</button>
-
-</div>
-`
-
-const pass=row.querySelector(".pass")
-const fail=row.querySelector(".fail")
-
+let pass=document.createElement("button")
+pass.innerText="Pass"
+pass.className="passBtn"
 pass.onclick=()=>record(item,"Pass")
+
+let fail=document.createElement("button")
+fail.innerText="Fail"
+fail.className="failBtn"
 fail.onclick=()=>record(item,"Fail")
 
-sec.appendChild(row)
+let buttons=document.createElement("div")
+buttons.appendChild(pass)
+buttons.appendChild(fail)
+
+row.appendChild(label)
+row.appendChild(buttons)
+
+sectionDiv.appendChild(row)
 
 })
 
-container.appendChild(sec)
+container.appendChild(sectionDiv)
 
 })
 
@@ -153,53 +126,29 @@ container.appendChild(sec)
 
 function record(item,result){
 
-if(!results[item]){
+const time=new Date().toLocaleTimeString()
 
-results[item]={
-result:result,
-time:new Date().toLocaleString()
-}
-
-}else{
-
-results[item].result=result
-
-}
-
-updateProgress()
-
-checkCriticalFails(item,result)
+results[item]={result,time}
 
 }
 
 
 
-function updateProgress(){
+function getExportTimestamp(){
 
-let done=Object.keys(results).length
+const now=new Date()
 
-let percent=Math.round((done/totalChecks)*100)
+const year=now.getFullYear()
+const month=String(now.getMonth()+1).padStart(2,'0')
+const day=String(now.getDate()).padStart(2,'0')
 
-document.getElementById("progress").innerText=`${percent}% Complete`
+const hours=String(now.getHours()).padStart(2,'0')
+const minutes=String(now.getMinutes()).padStart(2,'0')
 
-}
+return{
 
-
-
-function checkCriticalFails(item,result){
-
-const critical = [
-
-"Tread above legal limit",
-"Foot brake responsive",
-"Steering free from play",
-"No warning lights showing"
-
-]
-
-if(result==="Fail" && critical.includes(item)){
-
-setSafe(false)
+display:`${day}/${month}/${year} ${hours}:${minutes}`,
+file:`${year}-${month}-${day}_${hours}${minutes}`
 
 }
 
@@ -212,18 +161,16 @@ async function exportPDF(){
 const { jsPDF } = window.jspdf
 const doc=new jsPDF()
 
-let y=15
-
 const reg=document.getElementById("reg").value
 const mileage=document.getElementById("mileage").value
 const safe=document.getElementById("safeToDrive").value
-const driver=document.getElementById("driver").value
 const type=document.getElementById("inspectionType").value
 const notes=document.getElementById("notes").value
+const photos=document.getElementById("photoUpload").files
 
-const files=document.getElementById("photoUpload").files
+const timestamp=getExportTimestamp()
 
-const date=new Date().toLocaleString()
+let y=15
 
 doc.setFontSize(18)
 doc.text("Vehicle Inspection Report",10,y)
@@ -232,38 +179,20 @@ y+=10
 
 doc.setFontSize(12)
 
-doc.text(`Date: ${date}`,10,y)
-y+=7
-doc.text(`Driver: ${driver}`,10,y)
-y+=7
-doc.text(`Inspection: ${type}`,10,y)
-y+=7
-doc.text(`Vehicle: ${reg}`,10,y)
-y+=7
-doc.text(`Mileage: ${mileage}`,10,y)
-y+=7
-doc.text(`Safe To Drive: ${safe}`,10,y)
+doc.text(`Inspection Type: ${type}`,10,y); y+=7
+doc.text(`Vehicle Registration: ${reg}`,10,y); y+=7
+doc.text(`Mileage: ${mileage}`,10,y); y+=7
+doc.text(`Safe To Drive: ${safe}`,10,y); y+=7
+doc.text(`Exported: ${timestamp.display}`,10,y)
 
 y+=10
 
-Object.keys(checklist).forEach(section=>{
 
-doc.setFontSize(14)
-doc.text(section.toUpperCase(),10,y)
+Object.keys(results).forEach(item=>{
 
-y+=6
+let symbol=results[item].result==="Pass"?"✔":"✖"
 
-doc.setFontSize(11)
-
-checklist[section].forEach(item=>{
-
-if(results[item]){
-
-let icon = results[item].result==="Pass" ? "✔":"✖"
-
-let line=`${icon} ${item} - ${results[item].result} - ${results[item].time}`
-
-doc.text(line,12,y)
+doc.text(`${symbol} ${item} - ${results[item].result} - ${results[item].time}`,10,y)
 
 y+=6
 
@@ -272,28 +201,56 @@ doc.addPage()
 y=15
 }
 
-}
-
 })
 
-y+=3
-
-})
 
 if(notes){
 
 doc.addPage()
 
-doc.setFontSize(14)
-doc.text("NOTES",10,15)
-
-doc.setFontSize(11)
+doc.text("Notes",10,15)
 doc.text(notes,10,25)
 
 }
 
-doc.save(`inspection_${reg}.pdf`)
+
+if(photos.length){
+
+doc.addPage()
+
+doc.text("Photos",10,15)
+
+let imgY=25
+
+for(let file of photos){
+
+const reader=new FileReader()
+
+await new Promise(resolve=>{
+
+reader.onload=function(e){
+
+doc.addImage(e.target.result,"JPEG",10,imgY,180,90)
+
+imgY+=100
+
+resolve()
 
 }
+
+reader.readAsDataURL(file)
+
+})
+
+}
+
+}
+
+
+doc.save(`Inspection_${reg}_${timestamp.file}.pdf`)
+
+}
+
+
 
 buildChecklist()
