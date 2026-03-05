@@ -1,5 +1,5 @@
 const checklist = {
-
+ 
 "Lights & Visibility":[
 "Headlights (dipped & main)",
 "Side lights",
