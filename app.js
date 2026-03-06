@@ -1,4 +1,3 @@
-
 const checklist = {
 
 "Lights & Visibility":[
@@ -132,8 +131,128 @@ container.appendChild(sectionDiv)
 }
 
 function record(item,result){
+
 const time=new Date().toLocaleTimeString()
-results[item]={result,time}
+
+results[item]={
+result:result,
+time:time
+}
+
+}
+
+function getTimestamp(){
+
+const now=new Date()
+
+const year=now.getFullYear()
+const month=String(now.getMonth()+1).padStart(2,'0')
+const day=String(now.getDate()).padStart(2,'0')
+
+const hours=String(now.getHours()).padStart(2,'0')
+const minutes=String(now.getMinutes()).padStart(2,'0')
+
+return {
+display:`${day}/${month}/${year} ${hours}:${minutes}`,
+file:`${year}-${month}-${day}_${hours}${minutes}`
+}
+
+}
+
+async function exportPDF(){
+
+const { jsPDF } = window.jspdf
+const doc = new jsPDF()
+
+const reg=document.getElementById("reg").value
+const mileage=document.getElementById("mileage").value
+const safe=document.getElementById("safeToDrive").value
+const type=document.getElementById("inspectionType").value
+const notes=document.getElementById("notes").value
+const photos=document.getElementById("photoUpload").files
+
+const timestamp=getTimestamp()
+
+let y=15
+
+doc.setFontSize(18)
+doc.text("Vehicle Inspection Report",10,y)
+
+y+=10
+
+doc.setFontSize(12)
+
+doc.text(`Inspection: ${type}`,10,y); y+=7
+doc.text(`Vehicle Reg: ${reg}`,10,y); y+=7
+doc.text(`Mileage: ${mileage}`,10,y); y+=7
+doc.text(`Safe To Drive: ${safe}`,10,y); y+=7
+doc.text(`Exported: ${timestamp.display}`,10,y)
+
+y+=10
+
+Object.keys(results).forEach(item=>{
+
+let symbol = results[item].result === "Pass" ? "✔" : "✖"
+
+doc.text(`${symbol} ${item} - ${results[item].result} - ${results[item].time}`,10,y)
+
+y+=6
+
+if(y>270){
+doc.addPage()
+y=15
+}
+
+})
+
+if(notes){
+
+doc.addPage()
+
+doc.text("Notes",10,15)
+doc.text(notes,10,25)
+
+}
+
+if(photos.length){
+
+doc.addPage()
+
+doc.text("Photos",10,15)
+
+let imgY=25
+
+for(let file of photos){
+
+const reader=new FileReader()
+
+await new Promise(resolve=>{
+
+reader.onload=function(e){
+
+doc.addImage(e.target.result,"JPEG",10,imgY,180,90)
+
+imgY+=100
+
+if(imgY>260){
+doc.addPage()
+imgY=20
+}
+
+resolve()
+
+}
+
+reader.readAsDataURL(file)
+
+})
+
+}
+
+}
+
+doc.save(`Inspection_${reg}_${timestamp.file}.pdf`)
+
 }
 
 buildChecklist()
