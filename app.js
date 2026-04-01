@@ -424,7 +424,8 @@ Object.keys(checklist).forEach(section => {
     // Item text
     doc.setFont("helvetica", isFailed ? "bold" : "normal")
     doc.setFontSize(9)
-    doc.setTextColor(isFailed ? white : lightGrey)
+    const textCol = isFailed ? white : lightGrey
+    doc.setTextColor(...textCol)
     doc.text(item, margin + 8, y + 2.5)
 
     // Result badge
@@ -544,9 +545,9 @@ if (selectedPhotos.length) {
 const totalPages = doc.internal.getNumberOfPages()
 for (let p = 1; p <= totalPages; p++) {
   doc.setPage(p)
-  doc.setDrawColor(...midGrey)
+  doc.setDrawColor(40, 40, 40)
   doc.line(margin, pageH - 10, pageW - margin, pageH - 10)
-  doc.setTextColor(...mutedText)
+  doc.setTextColor(150, 150, 150)
   doc.setFont("helvetica", "normal")
   doc.setFontSize(7)
   doc.text(`Van Inspection · ${reg}`, margin, pageH - 5)
