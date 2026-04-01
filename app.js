@@ -4,6 +4,7 @@ const checklist = {
 "Headlights (dipped & main)",
 "Side lights",
 "Brake lights",
+"Side Markers",
 "Indicators",
 "Hazard lights",
 "Reverse light",
