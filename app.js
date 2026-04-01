@@ -412,13 +412,13 @@ Object.keys(checklist).forEach(section => {
     // Status indicator dot
     if (isPassed) {
       doc.setFillColor(...passGreen)
-      doc.circle(margin + 3, y + 1, 1.5, "F")
+      doc.ellipse(margin + 3, y + 1, 1.5, 1.5, "F")
     } else if (isFailed) {
       doc.setFillColor(...failRed)
-      doc.circle(margin + 3, y + 1, 1.5, "F")
+      doc.ellipse(margin + 3, y + 1, 1.5, 1.5, "F")
     } else {
       doc.setFillColor(...midGrey)
-      doc.circle(margin + 3, y + 1, 1.5, "F")
+      doc.ellipse(margin + 3, y + 1, 1.5, 1.5, "F")
     }
 
     // Item text
